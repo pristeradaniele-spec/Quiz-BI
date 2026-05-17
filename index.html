@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quiz ICT">
+  <title>Quiz Concorsi ICT</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+<div class="app">
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">🏦</div>
+    <div>
+      <h1>Quiz Concorsi ICT</h1>
+      <div class="subtitle">Banca d'Italia Profilo A · Preselettivo</div>
+    </div>
+    <button id="btn-install" class="btn btn-secondary btn-sm hidden" style="margin-left:auto">
+      📲 Installa
+    </button>
+  </header>
+
+  <!-- ── NAVIGATION ─────────────────────────────────────────────────────── -->
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="home">🏠 Home</button>
+    <button class="tab-btn" data-tab="quiz-select">⚡ Quiz</button>
+    <button class="tab-btn" data-tab="open">📝 Aperte</button>
+    <button class="tab-btn" data-tab="settings">⚙️</button>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN: HOME ──────────────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div id="screen-home">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="home-total">—</div>
+        <div class="stat-label">Domande totali</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="home-answered">—</div>
+        <div class="stat-label">Risposte</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="home-correct">—</div>
+        <div class="stat-label">Corrette</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="home-pct">—</div>
+        <div class="stat-label">% corretto</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <strong>Progresso totale</strong>
+        <span class="muted" id="home-pct-label"></span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="home-progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong style="display:block;margin-bottom:14px">Per materia</strong>
+      <div id="home-categories"></div>
+    </div>
+
+    <div class="card">
+      <strong style="display:block;margin-bottom:12px">Database domande</strong>
+      <div id="home-db-sources"></div>
+    </div>
+
+    <div class="card center" style="padding:24px">
+      <button class="btn btn-primary btn-full"
+        onclick="document.querySelector('[data-tab=quiz-select]').click()">
+        ⚡ Inizia quiz rapido
+      </button>
+      <div class="mt-12">
+        <button class="btn btn-secondary btn-full"
+          onclick="document.querySelector('[data-tab=open]').click()">
+          📝 Domande aperte
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN: QUIZ SELECTOR ─────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div id="screen-quiz-select" class="hidden">
+
+    <div class="card">
+      <strong style="display:block;margin-bottom:14px">Sorgente concorso</strong>
+      <div class="selector-grid" id="quiz-source-grid"></div>
+    </div>
+
+    <div class="card">
+      <strong style="display:block;margin-bottom:14px">Materia</strong>
+      <div class="selector-grid" id="quiz-cat-grid"></div>
+    </div>
+
+    <div class="card">
+      <strong style="display:block;margin-bottom:16px">Configurazione sessione</strong>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Numero domande</div>
+          <div class="setting-sub" id="quiz-available-count">— disponibili</div>
+        </div>
+        <input type="number" id="quiz-count-input" value="20" min="5" max="60"
+          style="width:70px;padding:8px;background:var(--bg3);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-size:1rem;text-align:center">
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Timer</div>
+          <div class="setting-sub">Secondi per domanda</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="quiz-timer-toggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">Secondi per domanda</div>
+        <input type="number" id="quiz-timer-input" value="90" min="15" max="300"
+          style="width:70px;padding:8px;background:var(--bg3);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-size:1rem;text-align:center">
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="btn-start-quiz">
+      ⚡ Inizia sessione →
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN: QUIZ ──────────────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div id="screen-quiz" class="hidden">
+    <!-- Progress top bar -->
+    <div style="height:4px;background:var(--bg3);border-radius:99px;margin-bottom:16px">
+      <div id="quiz-top-progress" style="height:100%;background:var(--blue);border-radius:99px;width:0%;transition:width .4s"></div>
+    </div>
+
+    <div class="quiz-header">
+      <span class="quiz-progress-text">Domanda <strong id="quiz-num">1/20</strong></span>
+      <div id="quiz-timer" class="timer">1:30</div>
+      <button class="btn btn-secondary btn-sm" id="quiz-btn-exit">✕ Esci</button>
+    </div>
+
+    <div class="card">
+      <div class="question-meta" id="quiz-meta"></div>
+      <div class="question-text" id="quiz-question"></div>
+      <div class="options-list" id="quiz-options"></div>
+      <div class="explanation-box hidden" id="quiz-explanation"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="btn btn-secondary" id="quiz-btn-skip">⏭ Salta</button>
+      <button class="btn btn-primary hidden" id="quiz-btn-next">Prossima →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN: QUIZ RESULTS ───────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div id="screen-quiz-results" class="hidden">
+    <div class="card result-score">
+      <div class="score-circle">
+        <div class="score-num" id="result-num">—</div>
+        <div class="score-den" id="result-den">/20</div>
+      </div>
+      <div id="result-pct" style="font-size:2rem;font-weight:900;margin-bottom:4px">—%</div>
+      <div id="result-status" style="font-size:1rem;font-weight:700"></div>
+    </div>
+
+    <div class="flex gap-12 wrap mt-4">
+      <button class="btn btn-secondary" id="result-btn-home">🏠 Home</button>
+      <button class="btn btn-primary" id="result-btn-retry">⚡ Altro quiz</button>
+    </div>
+
+    <div id="result-review" class="mt-20"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN: OPEN QUESTIONS ─────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div id="screen-open" class="hidden">
+    <div class="card">
+      <div class="setting-row" style="border:none;padding:0">
+        <strong>Filtra per concorso</strong>
+        <select id="open-source-select"
+          style="padding:8px 12px;background:var(--bg3);border:1px solid var(--border);
+                 border-radius:8px;color:var(--text);font-size:.9rem">
+          <option value="">Tutti</option>
+          <option value="banca_italia_a">Banca d'Italia — Profilo A</option>
+          <option value="acn_b">ACN — Codice B</option>
+        </select>
+      </div>
+    </div>
+    <div id="open-questions-container"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN: SETTINGS ──────────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div id="screen-settings" class="hidden">
+
+    <div class="card settings-section">
+      <h3>Database</h3>
+      <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div class="setting-label">Statistiche database</div>
+        <div class="muted" id="settings-db-info"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Aggiungi domande</div>
+          <div class="setting-sub">Crea un file questions_*_v*.js e aggiungilo a data/index.js</div>
+        </div>
+        <span class="badge badge-blue">Schema in data/schema.js</span>
+      </div>
+    </div>
+
+    <div class="card settings-section">
+      <h3>Progressi</h3>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Reset progressi</div>
+          <div class="setting-sub">Azzera tutte le statistiche e le bozze salvate</div>
+        </div>
+        <button class="btn btn-danger btn-sm" id="settings-reset-btn">Reset</button>
+      </div>
+    </div>
+
+    <div class="card settings-section">
+      <h3>Integrazione AI</h3>
+      <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div class="setting-label">API Key Anthropic</div>
+        <div class="muted">
+          La chiave viene salvata in localStorage sul tuo dispositivo.
+          Ottienila su console.anthropic.com (account separato da Claude Pro).
+        </div>
+        <input type="password" class="api-key-input"
+          id="global-api-key" placeholder="sk-ant-api03-..."
+          style="margin-top:8px">
+        <button class="btn btn-primary btn-sm" id="save-api-key-btn">Salva chiave</button>
+      </div>
+    </div>
+
+    <div class="card settings-section">
+      <h3>Informazioni</h3>
+      <div class="setting-row">
+        <span class="setting-label">Versione app</span>
+        <span class="muted">1.0.0</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Funziona offline</span>
+        <span class="badge badge-green">✓ PWA</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Progressi salvati</span>
+        <span class="badge badge-blue">localStorage</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ──────────────────────────────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+</div><!-- /.app -->
+
+<script type="module" src="app.js"></script>
+<script>
+  // Salva API key globale dalle impostazioni
+  document.addEventListener("DOMContentLoaded", () => {
+    const saveBtn = document.getElementById("save-api-key-btn");
+    const keyInput = document.getElementById("global-api-key");
+    if (saveBtn && keyInput) {
+      try {
+        const s = JSON.parse(localStorage.getItem("quiz_settings")) || {};
+        if (s.apiKey) keyInput.value = s.apiKey;
+      } catch {}
+      saveBtn.addEventListener("click", () => {
+        const key = keyInput.value.trim();
+        try {
+          const s = JSON.parse(localStorage.getItem("quiz_settings")) || {};
+          s.apiKey = key;
+          localStorage.setItem("quiz_settings", JSON.stringify(s));
+          const t = document.getElementById("toast");
+          t.textContent = "API key salvata ✓";
+          t.classList.add("show");
+          setTimeout(() => t.classList.remove("show"), 2000);
+        } catch {}
+      });
+    }
+  });
+</script>
+</body>
+</html>
