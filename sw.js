@@ -3,7 +3,7 @@
  * Strategia: Cache First per assets statici, Network First per dati
  */
 
-const CACHE_NAME = "quiz-ict-v1";
+const CACHE_NAME = "quiz-ict-v2";
 const ASSETS_TO_CACHE = [
   "./index.html",
   "./style.css",
@@ -11,7 +11,9 @@ const ASSETS_TO_CACHE = [
   "./data/index.js",
   "./data/schema.js",
   "./data/questions_bi_a_v1.js",
+  "./data/questions_bi_a_v2.js",
   "./data/questions_bi_open_v1.js",
+  "./data/questions_bi_open_v2.js",
   "./data/questions_preselettivo_v1.js",
   "./manifest.json",
   "./icons/icon-192.png",

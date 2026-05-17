@@ -56,6 +56,7 @@ export const SCHEMA_VERSION = "1.0";
  * @property {string[]} hints           - Spunti per non rimanere bloccato
  * @property {string}   structure_guide - Come strutturare la risposta
  * @property {string[]} key_points      - Punti chiave che devono comparire
+ * @property {string}   [approfondimento] - Testo teorico di approfondimento in Markdown (opzionale)
  * @property {string[]} tags
  * @property {string}   added_date
  */

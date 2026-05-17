@@ -10,14 +10,18 @@
  */
 
 import { QUESTIONS_BI_A_V1 }           from "./questions_bi_a_v1.js";
+import { QUESTIONS_BI_A_V2 }           from "./questions_bi_a_v2.js";
 import { QUESTIONS_BI_OPEN_V1 }        from "./questions_bi_open_v1.js";
+import { QUESTIONS_BI_OPEN_V2 }        from "./questions_bi_open_v2.js";
 import { QUESTIONS_PRESELETTIVO_V1 }   from "./questions_preselettivo_v1.js";
 
 // ─── REGISTRO SORGENTI ────────────────────────────────────────────────────────
 // Aggiungere qui ogni nuovo batch importato sopra.
 const QUESTION_SOURCES = [
   { data: QUESTIONS_BI_A_V1,          label: "BI Profilo A — v1 (2026-05)" },
+  { data: QUESTIONS_BI_A_V2,          label: "BI Profilo A — v2 (2026-05)" },
   { data: QUESTIONS_BI_OPEN_V1,       label: "BI Aperte — v1 (2026-05)" },
+  { data: QUESTIONS_BI_OPEN_V2,       label: "BI Aperte — v2 (2026-05)" },
   { data: QUESTIONS_PRESELETTIVO_V1,  label: "Preselettivo BI — v1 (2026-05)" },
   // { data: QUESTIONS_ACN_B_V1,      label: "ACN Codice B — v1" },   // ← esempio prossimo batch
 ];

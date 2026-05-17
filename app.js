@@ -461,6 +461,17 @@ function renderOpenQuestions() {
     const cat  = CATEGORIES[q.category] || { label: q.category, color: "blue" };
     const savedDraft = state.openDrafts[q.id] || "";
 
+    const approfondimentoHtml = q.approfondimento ? `
+      <div class="approfondimento-section">
+        <button class="approfondimento-toggle" data-qid="${q.id}">
+          📚 Approfondimento teorico
+        </button>
+        <div class="approfondimento-body" id="approfondimento-${q.id}">
+          <div class="approfondimento-content">${markdownToHtml(q.approfondimento)}</div>
+        </div>
+      </div>
+    ` : "";
+
     card.innerHTML = `
       <div class="question-meta">
         ${badge(cat.label, cat.color)}
@@ -468,6 +479,8 @@ function renderOpenQuestions() {
       </div>
       <div class="question-text">${q.question}</div>
       ${q.sub_questions ? `<ul class="sub-questions">${q.sub_questions.map(s=>`<li>${s}</li>`).join("")}</ul>` : ""}
+
+      ${approfondimentoHtml}
 
       <div class="hints-section">
         <button class="hints-toggle" data-qid="${q.id}">💡 Mostra spunti</button>
@@ -488,7 +501,7 @@ function renderOpenQuestions() {
         <button class="btn btn-secondary btn-sm" data-action="save-draft" data-qid="${q.id}">💾 Salva bozza</button>
         <button class="btn btn-secondary btn-sm" data-action="show-key-points" data-qid="${q.id}">✅ Punti chiave</button>
         <button class="btn btn-secondary btn-sm" data-action="ai-eval" data-qid="${q.id}">🤖 Valuta con AI</button>
-        <button class="btn btn-secondary btn-sm" data-action="share" data-qid="${q.id}">📤 Condividi</button>
+        <button class="btn btn-secondary btn-sm" data-action="share" data-qid="${q.id}">📤 Copia testo</button>
       </div>
 
       <div class="key-points-section" id="keypoints-${q.id}">
@@ -522,6 +535,153 @@ function renderOpenQuestions() {
   });
 }
 
+// Converte Markdown basilare in HTML (per approfondimento)
+function markdownToHtml(md) {
+  return md
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    // Code blocks (```) — deve venire prima degli inline
+    .replace(/```[\w]*\n([\s\S]*?)```/g, (_, code) =>
+      `<pre><code>${code.trim()}</code></pre>`)
+    // Inline code
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    // Headers
+    .replace(/^### (.+)$/gm, "<h4>$1</h4>")
+    .replace(/^## (.+)$/gm, "<h3>$1</h3>")
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    // Italic
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Table rows (basic)
+    .replace(/^\|(.+)\|$/gm, (_, row) => {
+      const cells = row.split("|").map(c => c.trim());
+      return "<tr>" + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
+    })
+    .replace(/(<tr>[\s\S]*?<\/tr>)/g, "<table>$1</table>")
+    // Bullet lists
+    .replace(/^- (.+)$/gm, "<li>$1</li>")
+    .replace(/(<li>[\s\S]*?<\/li>)/g, m =>
+      m.startsWith("<li>") && !m.includes("<ul>") ? `<ul>${m}</ul>` : m)
+    // Double newlines → paragraphs
+    .replace(/\n{2,}/g, "</p><p>")
+    .replace(/^/, "<p>").replace(/$/, "</p>")
+    // Clean up empty paragraphs and wrap tables/pre outside p
+    .replace(/<p>(<(?:table|pre|ul|h[2-4])>)/g, "$1")
+    .replace(/(<\/(?:table|pre|ul|h[2-4])>)<\/p>/g, "$1")
+    .replace(/<p><\/p>/g, "");
+}
+
+// ─── BOZZE SALVATE ────────────────────────────────────────────────────────────
+function renderOpenDrafts() {
+  const container = $("open-drafts-container");
+  container.innerHTML = "";
+
+  const drafts = Object.entries(state.openDrafts).filter(([, text]) => text && text.trim());
+
+  if (!drafts.length) {
+    container.innerHTML = `
+      <div class="card center" style="padding:40px">
+        <div style="font-size:2rem;margin-bottom:12px">📝</div>
+        <div class="muted">Nessuna bozza salvata.<br>Scrivi una risposta nella sezione Domande e premi "Salva bozza".</div>
+      </div>`;
+    return;
+  }
+
+  const intro = el("div", "card");
+  intro.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>${drafts.length} bozz${drafts.length === 1 ? "a" : "e"} salvat${drafts.length === 1 ? "a" : "e"}</strong>
+        <div class="muted" style="font-size:.82rem;margin-top:4px">
+          Copia il testo per incollarlo in Claude o altra AI per la valutazione manuale
+        </div>
+      </div>
+    </div>`;
+  container.appendChild(intro);
+
+  drafts.forEach(([qid, text]) => {
+    const q = ALL_QUESTIONS.find(q => q.id === qid);
+    const cat = q ? (CATEGORIES[q.category] || { label: q.category, color: "blue" }) : { label: "—", color: "blue" };
+    const title = q ? q.question.slice(0, 100) + (q.question.length > 100 ? "…" : "") : qid;
+
+    const card = el("div", "draft-card card");
+    card.innerHTML = `
+      <div class="draft-card-header">
+        <div>
+          <div class="draft-qid">${badge(cat.label, cat.color)} <span class="muted" style="font-size:.78rem;margin-left:6px">${qid}</span></div>
+          <div class="draft-title">${title}</div>
+        </div>
+        <div class="draft-card-actions">
+          <button class="btn btn-primary btn-sm" data-action="copy-draft" data-qid="${qid}" title="Copia testo completo">📋 Copia</button>
+          <button class="btn btn-secondary btn-sm" data-action="copy-with-prompt" data-qid="${qid}" title="Copia con prompt valutazione">🤖 Copia + Prompt</button>
+          <button class="btn btn-danger btn-sm" data-action="delete-draft" data-qid="${qid}" title="Elimina bozza">🗑</button>
+        </div>
+      </div>
+      <div class="draft-preview">${text.replace(/</g, "&lt;")}</div>
+    `;
+    container.appendChild(card);
+  });
+
+  container.addEventListener("click", handleDraftAction);
+}
+
+function handleDraftAction(e) {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const qid = btn.dataset.qid;
+  const q = ALL_QUESTIONS.find(q => q.id === qid);
+  const text = state.openDrafts[qid] || "";
+
+  if (action === "copy-draft") {
+    navigator.clipboard.writeText(text)
+      .then(() => toast("Testo copiato negli appunti ✓"))
+      .catch(() => toast("Copia manuale: seleziona il testo nell'anteprima"));
+
+  } else if (action === "copy-with-prompt") {
+    const fullText = q ? buildShareText(q, text) : text;
+    navigator.clipboard.writeText(fullText)
+      .then(() => toast("Testo + prompt copiati ✓"))
+      .catch(() => toast("Impossibile copiare automaticamente"));
+
+  } else if (action === "delete-draft") {
+    if (confirm("Eliminare questa bozza?")) {
+      delete state.openDrafts[qid];
+      saveOpenDrafts();
+      renderOpenDrafts();
+      toast("Bozza eliminata.");
+    }
+  }
+}
+
+// ─── TOGGLE DOMANDE / BOZZE ───────────────────────────────────────────────────
+function initOpenTabs() {
+  const tabQ = $("open-tab-questions");
+  const tabD = $("open-tab-drafts");
+  const qContainer = $("open-questions-container");
+  const dContainer = $("open-drafts-container");
+  const filterCard = $("open-filter-card");
+
+  function showQuestionsTab() {
+    tabQ.classList.add("active");
+    tabD.classList.remove("active");
+    qContainer.classList.remove("hidden");
+    dContainer.classList.add("hidden");
+    filterCard.classList.remove("hidden");
+  }
+
+  function showDraftsTab() {
+    tabD.classList.add("active");
+    tabQ.classList.remove("active");
+    dContainer.classList.remove("hidden");
+    qContainer.classList.add("hidden");
+    filterCard.classList.add("hidden");
+    renderOpenDrafts();
+  }
+
+  tabQ.addEventListener("click", showQuestionsTab);
+  tabD.addEventListener("click", showDraftsTab);
+}
+
 function handleOpenAction(e) {
   const btn = e.target.closest("[data-action]");
   if (!btn) return;
@@ -546,11 +706,13 @@ function handleOpenAction(e) {
     const draft = $(`draft-${qid}`)?.value || "";
     if (!draft.trim()) { toast("Scrivi prima una risposta."); return; }
     const text = buildShareText(q, draft);
-    if (navigator.share) {
-      navigator.share({ title: "Valutazione risposta concorso", text }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(text).then(() => toast("Testo copiato negli appunti ✓"));
-    }
+    navigator.clipboard.writeText(text)
+      .then(() => toast("Testo + prompt copiati negli appunti ✓"))
+      .catch(() => {
+        if (navigator.share) {
+          navigator.share({ title: "Valutazione risposta concorso", text }).catch(() => {});
+        }
+      });
 
   } else if (action === "send-ai") {
     const apiKey = $(`apikey-${qid}`)?.value?.trim();
@@ -565,6 +727,11 @@ function handleOpenAction(e) {
     $(`hints-${qid}`).classList.toggle("open");
     e.target.textContent = $(`hints-${qid}`).classList.contains("open")
       ? "💡 Nascondi spunti" : "💡 Mostra spunti";
+
+  } else if (e.target.matches(".approfondimento-toggle")) {
+    const body = $(`approfondimento-${qid}`);
+    body.classList.toggle("open");
+    e.target.classList.toggle("open");
   }
 }
 
@@ -689,7 +856,8 @@ function init() {
   $("result-btn-home")?.addEventListener("click", () => { showScreen("home"); renderHome(); });
   $("result-btn-retry")?.addEventListener("click", () => { showScreen("quiz-select"); renderQuizSelect(); });
 
-  // Open source select
+  // Open questions: tabs e filtro
+  initOpenTabs();
   $("open-source-select")?.addEventListener("change", renderOpenQuestions);
 
   // Settings: reset progress

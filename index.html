@@ -197,7 +197,15 @@
   <!-- SCREEN: OPEN QUESTIONS ─────────────────────────────────────────────── -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <div id="screen-open" class="hidden">
-    <div class="card">
+
+    <!-- Toggle Domande / Bozze salvate -->
+    <div class="open-toggle-bar">
+      <button class="open-tab-btn active" id="open-tab-questions">📋 Domande</button>
+      <button class="open-tab-btn" id="open-tab-drafts">💾 Bozze salvate</button>
+    </div>
+
+    <!-- Filtro sorgente (visibile solo nella tab Domande) -->
+    <div class="card" id="open-filter-card">
       <div class="setting-row" style="border:none;padding:0">
         <strong>Filtra per concorso</strong>
         <select id="open-source-select"
@@ -209,7 +217,13 @@
         </select>
       </div>
     </div>
+
+    <!-- Elenco domande aperte -->
     <div id="open-questions-container"></div>
+
+    <!-- Sezione bozze salvate -->
+    <div id="open-drafts-container" class="hidden"></div>
+
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
