@@ -55,7 +55,7 @@ Il Federated Learning (FL) è un paradigma di machine learning distribuito intro
 L'aggregazione ponderata per dimensione del dataset garantisce che i client con più dati abbiano maggiore influenza — appropriato per il contesto bancario dove una banca più grande ha pattern più rappresentativi.
 
 **Federated Learning Orizzontale vs Verticale:**
-- *Orizzontale*: le banche hanno le stesse feature (colonne) ma clienti diversi — es. tutte hanno campo `importo`, `merchant_category`, `ora_transazione`. Questo è il caso tipico per anti-frode interbancaria.
+- *Orizzontale*: le banche hanno le stesse feature (colonne) ma clienti diversi — es. tutte hanno campo *importo*, *merchant_category*, *ora_transazione*. Questo è il caso tipico per anti-frode interbancaria.
 - *Verticale*: le banche hanno clienti in comune ma feature diverse — es. banca A ha dati transazionali, banca B ha dati creditizi. Richiede protocolli più complessi (split learning, PSI - Private Set Intersection).
 
 ### Differential Privacy nel Federated Learning
