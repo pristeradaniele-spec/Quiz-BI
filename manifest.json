@@ -2,7 +2,7 @@
   "name": "Quiz Concorsi ICT",
   "short_name": "Quiz ICT",
   "description": "Simulatore quiz per concorsi pubblici ICT: Banca d'Italia Profilo A, test preselettivo",
-  "start_url": "/quiz-app/index.html",
+  "start_url": "/Quiz-BI/index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#3b82f6",
